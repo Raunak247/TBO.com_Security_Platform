@@ -433,7 +433,9 @@ def create_api(db, scheduler=False):
     return app
 
 
-db_file = pathlib.Path("travelshield.db")
+db_file = pathlib.Path(__file__).resolve().parent.parent / "travelshield.db"
+if not db_file.exists():
+    db_file = pathlib.Path("travelshield.db")
 if os.environ.get("VERCEL"):
     tmp_db = pathlib.Path("/tmp/travelshield.db")
     if not tmp_db.exists() and db_file.exists():
