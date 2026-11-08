@@ -1,10 +1,11 @@
 """Platform authentication (separate from the synthetic target's agency roles)."""
-import hashlib, hmac, os, secrets, time
+import base64, hashlib, hmac, json, os, secrets, time
 
 ROLES = ["viewer", "developer", "analyst", "admin"]  # ascending privilege
 SESSIONS, FAILS = {}, {}
 DEMO_USERS = {"admin": ("Admin#2026demo", "admin"), "analyst": ("Analyst#2026demo", "analyst"),
               "dev": ("Dev#2026demo", "developer"), "viewer": ("Viewer#2026demo", "viewer")}
+SECRET_KEY = os.environ.get("TRAVELSHIELD_SECRET", "ts_sec_dev_2026_super_key_tbo_platform").encode()
 
 
 def hash_pw(pw, salt=None):
@@ -24,6 +25,13 @@ def seed_users(db):
     db.commit()
 
 
+def _create_token(username, role):
+    payload = json.dumps({"username": username, "role": role, "exp": int(time.time() + 8 * 3600)}).encode()
+    b64_payload = base64.urlsafe_b64encode(payload).decode().rstrip("=")
+    sig = hmac.new(SECRET_KEY, b64_payload.encode(), hashlib.sha256).hexdigest()
+    return f"{b64_payload}.{sig}"
+
+
 def login(db, username, password):
     f = FAILS.get(username, (0, 0))
     if f[0] >= 5 and time.time() < f[1]:
@@ -33,12 +41,28 @@ def login(db, username, password):
         FAILS[username] = (f[0] + 1, time.time() + 60)
         return None, "invalid"
     FAILS.pop(username, None)
-    tok = secrets.token_urlsafe(32)
+    tok = _create_token(username, row["role"])
     SESSIONS[tok] = dict(username=username, role=row["role"], exp=time.time() + 8 * 3600)
     return tok, None
 
 
 def session(token):
+    if not token:
+        return None
+    # 1. Stateless HMAC verification across serverless lambdas
+    try:
+        if "." in token:
+            b64_payload, sig = token.split(".", 1)
+            expected_sig = hmac.new(SECRET_KEY, b64_payload.encode(), hashlib.sha256).hexdigest()
+            if hmac.compare_digest(sig, expected_sig):
+                padded = b64_payload + "=" * ((4 - len(b64_payload) % 4) % 4)
+                data = json.loads(base64.urlsafe_b64decode(padded).decode())
+                if data.get("exp", 0) >= time.time():
+                    return data
+    except Exception:
+        pass
+
+    # 2. In-memory session fallback
     s = SESSIONS.get(token)
     if not s or s["exp"] < time.time():
         SESSIONS.pop(token, None)
