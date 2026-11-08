@@ -1,19 +1,19 @@
 id,title,category,severity,priority,risk_score,status,endpoint,workflow,confidence
-TS-0003,Cross-agency booking access,Broken Access Control (IDOR),critical,P1,10.0,Resolved,GET /bookings/{booking_id},booking_detail,0.95
-TS-0005,Unauthorized refund of another agency's booking,Broken Access Control (financial),critical,P1,10.0,Reopened,POST /bookings/{booking_id}/refund,refund_processing,0.95
-TS-0001,Undocumented debug endpoint exposes configuration,Sensitive Configuration Exposure,high,P1,8.9,Reopened,GET /api/internal/debug/config,platform_configuration,0.95
-TS-0002,Legacy bookings list readable without authentication,Missing Authentication,high,P1,8.9,Reopened,GET /api/v0/legacy/bookings,booking_detail,0.95
-TS-0004,Booking fare modifiable through client-supplied fields,Mass Assignment,high,P1,8.5,Reopened,POST /bookings/{booking_id}/modify,booking_modification,0.95
-TS-0006,Template expression evaluated in greeting parameter,"Injection (template, indicator only)",high,P2,8.1,Reopened,GET /agency/greeting,agency_account_management,0.95
-TS-0008,Preview endpoint fetches internal URLs,SSRF (local mock fixture only),high,P2,8.1,Reopened,GET /preview,platform_tools,0.95
-TS-0009,Shell metacharacters change the behavior of the ping tool,"Injection (command, indicator only)",high,P2,8.1,Reopened,GET /tools/ping,platform_tools,0.95
-TS-0011,Query operator in booking search returns another agency's bookings,"Injection (NoSQL operator, indicator only)",high,P2,8.1,Reopened,POST /bookings/search,booking_search,0.95
-TS-0007,Quote characters trigger a database error on flight search,Injection (indicator only),high,P2,7.3,Reopened,GET /flights/search,flight_search,0.95
-TS-0010,Session token still valid after logout,Improper Session Invalidation,high,P2,7.3,Reopened,POST /auth/logout,login,0.95
-TS-0014,Booking response exposes internal cost and unmasked passport,Sensitive Data Exposure,medium,P3,5.4,Reopened,GET /bookings/{booking_id},booking_detail,0.95
-TS-0016,Line breaks accepted in a response header value,Injection (header / CRLF),medium,P3,5.4,Reopened,GET /export,reporting,0.95
-TS-0017,Redirect endpoint sends users to arbitrary external URLs,Open Redirect,medium,P3,5.4,Reopened,GET /redirect,navigation,0.95
-TS-0018,Login accepts unlimited failed attempts,Missing Rate Limiting,medium,P3,5.4,Reopened,POST /auth/login,login,0.95
-TS-0012,Coupon can be applied repeatedly,Business Logic,medium,P3,5.1,Reopened,POST /coupons/apply,coupon_application,0.95
-TS-0013,Executable file types accepted by document upload,Unrestricted File Upload,medium,P3,4.9,Reopened,POST /documents/upload,document_management,0.95
-TS-0015,Malformed booking id returns an internal stack trace,Inconsistent Error Handling / Stack Trace,low,P3,2.7,Reopened,GET /bookings/{booking_id},booking_detail,0.95
+TS-0003,Cross-agency booking access,Broken Access Control (IDOR),critical,P1,10.0,Verified,GET /bookings/{booking_id},booking_detail,0.95
+TS-0005,Unauthorized refund of another agency's booking,Broken Access Control (financial),critical,P1,10.0,Verified,POST /bookings/{booking_id}/refund,refund_processing,0.95
+TS-0001,Undocumented debug endpoint exposes configuration,Sensitive Configuration Exposure,high,P1,8.9,Verified,GET /api/internal/debug/config,platform_configuration,0.95
+TS-0002,Legacy bookings list readable without authentication,Missing Authentication,high,P1,8.9,Verified,GET /api/v0/legacy/bookings,booking_detail,0.95
+TS-0004,Booking fare modifiable through client-supplied fields,Mass Assignment,high,P1,8.5,Verified,POST /bookings/{booking_id}/modify,booking_modification,0.95
+TS-0006,Template expression evaluated in greeting parameter,"Injection (template, indicator only)",high,P2,8.1,Verified,GET /agency/greeting,agency_account_management,0.95
+TS-0008,Preview endpoint fetches internal URLs,SSRF (local mock fixture only),high,P2,8.1,Verified,GET /preview,platform_tools,0.95
+TS-0009,Shell metacharacters change the behavior of the ping tool,"Injection (command, indicator only)",high,P2,8.1,Verified,GET /tools/ping,platform_tools,0.95
+TS-0011,Query operator in booking search returns another agency's bookings,"Injection (NoSQL operator, indicator only)",high,P2,8.1,Verified,POST /bookings/search,booking_search,0.95
+TS-0007,Quote characters trigger a database error on flight search,Injection (indicator only),high,P2,7.3,Verified,GET /flights/search,flight_search,0.95
+TS-0010,Session token still valid after logout,Improper Session Invalidation,high,P2,7.3,Verified,POST /auth/logout,login,0.95
+TS-0014,Booking response exposes internal cost and unmasked passport,Sensitive Data Exposure,medium,P3,5.4,Verified,GET /bookings/{booking_id},booking_detail,0.95
+TS-0016,Line breaks accepted in a response header value,Injection (header / CRLF),medium,P3,5.4,Verified,GET /export,reporting,0.95
+TS-0017,Redirect endpoint sends users to arbitrary external URLs,Open Redirect,medium,P3,5.4,Verified,GET /redirect,navigation,0.95
+TS-0018,Login accepts unlimited failed attempts,Missing Rate Limiting,medium,P3,5.4,Verified,POST /auth/login,login,0.95
+TS-0012,Coupon can be applied repeatedly,Business Logic,medium,P3,5.1,Verified,POST /coupons/apply,coupon_application,0.95
+TS-0013,Executable file types accepted by document upload,Unrestricted File Upload,medium,P3,4.9,Verified,POST /documents/upload,document_management,0.95
+TS-0015,Malformed booking id returns an internal stack trace,Inconsistent Error Handling / Stack Trace,low,P3,2.7,Verified,GET /bookings/{booking_id},booking_detail,0.95

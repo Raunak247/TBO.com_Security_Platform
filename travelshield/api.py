@@ -1,5 +1,5 @@
 """Product API with platform auth/RBAC. Run on localhost; CORS is restricted to the dev UI origins."""
-import asyncio, contextlib, json, pathlib, re, uuid
+import asyncio, contextlib, json, os, pathlib, re, shutil, uuid
 from fastapi import FastAPI, Depends, Header, HTTPException, Body, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
@@ -33,8 +33,8 @@ def create_api(db, scheduler=False):
         if task: task.cancel()
 
     app = FastAPI(title="TravelShield AI API", lifespan=lifespan)
-    app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
-                       allow_methods=["GET", "POST", "PATCH", "PUT"], allow_headers=["Authorization", "Content-Type"])
+    app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173", "http://127.0.0.1:5173", "*"],
+                       allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 
     def need(minimum):
         def dep(authorization: str = Header(None)):
@@ -433,4 +433,11 @@ def create_api(db, scheduler=False):
     return app
 
 
-app = create_api(connect("travelshield.db"), scheduler=True)
+db_file = pathlib.Path("travelshield.db")
+if os.environ.get("VERCEL"):
+    tmp_db = pathlib.Path("/tmp/travelshield.db")
+    if not tmp_db.exists() and db_file.exists():
+        shutil.copy(str(db_file), str(tmp_db))
+    db_file = tmp_db
+
+app = create_api(connect(str(db_file)), scheduler=not bool(os.environ.get("VERCEL")))

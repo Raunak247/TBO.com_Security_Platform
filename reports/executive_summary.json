@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-07T20:15:38+00:00",
+  "generated": "2026-11-08T04:48:55+00:00",
   "total": 18,
   "by_severity": {
     "critical": 2,
@@ -7,6 +7,6 @@
     "medium": 6,
     "low": 1
   },
-  "verified": 0,
-  "resolved": 1
+  "verified": 18,
+  "resolved": 0
 }
