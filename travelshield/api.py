@@ -9,7 +9,7 @@ from .db import connect, rows, now, get_settings, put_setting, log_agent
 from .integrations import CONNECTORS
 from .risk import score
 
-REPORTS = pathlib.Path("reports")
+REPORTS = pathlib.Path("/tmp/reports") if os.environ.get("VERCEL") else pathlib.Path("reports")
 
 
 class Login(BaseModel):
@@ -382,53 +382,19 @@ def create_api(db, scheduler=False):
 
     @app.post("/api/automation/enable")
     def auto_enable(s=Depends(need("analyst"))):
-        AUTOMATION["enabled"] = True
-        AUTOMATION["paused"] = False
+        pipeline.resume_all()
         log_agent(db, "Automation Engine", "enable", "ok", f"enabled by {s['username']}")
-        return AUTOMATION
-
-    @app.post("/api/automation/pause")
-    def auto_pause(s=Depends(need("analyst"))):
-        AUTOMATION["paused"] = True
-        log_agent(db, "Automation Engine", "pause", "ok", f"paused by {s['username']}")
-        return AUTOMATION
+        return dict(enabled=True, paused=False, running=pipeline.STATE["running"])
 
     @app.post("/api/automation/disable")
     def auto_disable(s=Depends(need("analyst"))):
-        AUTOMATION["enabled"] = False
-        AUTOMATION["paused"] = False
+        pipeline.pause_all()
         log_agent(db, "Automation Engine", "disable", "ok", f"disabled by {s['username']}")
-        return AUTOMATION
-
-    @app.get("/api/automation/workflows")
-    def auto_workflows(s=Depends(need("viewer"))):
-        return rows(db, "SELECT * FROM workflows ORDER BY started DESC LIMIT 50")
-
-    @app.post("/api/automation/deploy")
-    async def auto_deploy(s=Depends(need("analyst"))):
-        """Simulate a deployment event that triggers the full automation pipeline."""
-        wid = f"WF-{uuid.uuid4().hex[:8].upper()}"
-        db.execute("INSERT INTO workflows(id,trigger,status,stage,started) VALUES(?,?,?,?,?)",
-                   (wid, "simulated_deployment", "running", "change_detection", now()))
-        db.commit()
-        log_agent(db, "Automation Engine", "deploy", "ok", f"workflow {wid} started by {s['username']}")
-        try:
-            r = await pipeline.run_cycle(db, REPORTS, approve=True)
-            db.execute("UPDATE workflows SET status=?,stage=?,completed=?,endpoints_tested=?,findings_found=?,blocked_ops=? WHERE id=?",
-                       ("completed", "done", now(), r["requests"], len(r["findings"]),
-                        db.execute("SELECT COUNT(*) FROM audit WHERE decision='blocked'").fetchone()[0], wid))
-            db.commit()
-            return dict(workflow_id=wid, status="completed", findings=r["findings"], requests=r["requests"])
-        except Exception as e:
-            db.execute("UPDATE workflows SET status=?,error=?,completed=? WHERE id=?",
-                       ("failed", str(e)[:500], now(), wid))
-            db.commit()
-            log_agent(db, "Automation Engine", "deploy", "failed", str(e)[:200])
-            raise HTTPException(500, f"Workflow {wid} failed: {e}")
+        return dict(enabled=False, paused=True, running=pipeline.STATE["running"])
 
     @app.get("/api/health")
     def health():
-        return dict(status="ok", version="1.0.0", environment="synthetic-demo")
+        return dict(status="healthy", service="TravelShield AI", version="2.0.0", environment="synthetic-demo")
 
     return app
 

@@ -1,5 +1,5 @@
 """Orchestrator: change detection -> discovery -> inventory -> context -> plan -> safety -> test -> verify -> triage -> report -> retest."""
-import httpx, json, uuid
+import httpx, json, os, pathlib, uuid
 from synthetic_travel_app.app import create_app
 from . import changes, lifecycle, planner, triage, reporting
 from .business import workflow_of
@@ -79,7 +79,9 @@ async def _execute_items(db, g, items, inventory):
     return found
 
 
-async def run_cycle(db, out_dir="reports", approve=True, window_days=None, trigger="manual", workflow_id=None):
+async def run_cycle(db, out_dir=None, approve=True, window_days=None, trigger="manual", workflow_id=None):
+    if out_dir is None:
+        out_dir = pathlib.Path("/tmp/reports") if os.environ.get("VERCEL") else pathlib.Path("reports")
     if STATE["running"]:
         raise ScanBusy("a scan is already running")
     STATE["running"] = True
