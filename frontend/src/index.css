@@ -1,0 +1,4 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+:root { color-scheme: dark; }
+body { background:#0b1220; color:#dbe4f3; font-family: Inter, system-ui, Segoe UI, sans-serif; }

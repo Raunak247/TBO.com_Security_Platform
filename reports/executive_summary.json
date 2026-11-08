@@ -1,0 +1,12 @@
+{
+  "generated": "2026-11-07T20:15:38+00:00",
+  "total": 18,
+  "by_severity": {
+    "critical": 2,
+    "high": 9,
+    "medium": 6,
+    "low": 1
+  },
+  "verified": 0,
+  "resolved": 1
+}
